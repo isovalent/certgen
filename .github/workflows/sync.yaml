@@ -1,0 +1,21 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # every day at midnight
+  workflow_dispatch: # on button click
+
+jobs:
+  sync:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: tgymnich/fork-sync@v2.0.10
+        with:
+          owner: cilium
+          base: main
+          head: main
+          auto_approve: 'true'
+          auto_merge: 'true'
+          token: '${{ secrets.GH_TOKEN }}'
