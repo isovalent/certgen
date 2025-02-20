@@ -19,7 +19,7 @@ jobs:
           private-key: ${{ secrets.GH_SYNC_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: |
-            ${{ github.repository }}
+            ${{ github.repo_name }}
 
       - uses: tgymnich/fork-sync@e905b254d56ebb367514cd05fa96bf7516bd2a5a # v2.0.10
         with:
