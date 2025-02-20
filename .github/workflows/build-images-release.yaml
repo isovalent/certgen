@@ -24,18 +24,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
 
-      - name: Login to DockerHub
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
-        with:
-          username: ${{ secrets.DOCKER_HUB_RELEASE_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_RELEASE_PASSWORD }}
-
       - name: Login to quay.io
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME_RELEASE_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD_RELEASE_PASSWORD }}
+
+      - name: Login to registry.redhat.io for pulling images
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        with:
+          registry: quay.io
+          username: ${{ secrets.REDHAT_USERNAME_RELEASE_USERNAME }}
+          password: ${{ secrets.REDHAT_PASSWORD_RELEASE_PASSWORD }}
 
       - name: Getting image tag
         id: tag
@@ -56,8 +57,9 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${{ github.repository_owner }}/${{ matrix.name }}:${{ steps.tag.outputs.tag }}
             quay.io/${{ github.repository_owner }}/${{ matrix.name }}:${{ steps.tag.outputs.tag }}
+          build-args: |
+            BASE_IMAGE=redhat
 
       - name: Image Release Digest
         shell: bash
@@ -70,7 +72,6 @@ jobs:
 
           echo "### ${{ matrix.name }}" > image-digest/${{ matrix.name }}.txt
           echo "" >> image-digest/${{ matrix.name }}.txt
-          echo "\`docker.io/${{ github.repository_owner }}/${{ matrix.name }}:${{ steps.tag.outputs.tag }}@${{ steps.docker_build_release.outputs.digest }}\`" >> image-digest/${{ matrix.name }}.txt
           echo "\`quay.io/${{ github.repository_owner }}/${{ matrix.name }}:${{ steps.tag.outputs.tag }}@${{ steps.docker_build_release.outputs.digest }}\`" >> image-digest/${{ matrix.name }}.txt
           echo "" >> image-digest/${{ matrix.name }}.txt
 
@@ -83,7 +84,7 @@ jobs:
           retention-days: 1
 
   image-digests:
-    if: ${{ github.repository == 'cilium/certgen' }}
+    if: ${{ github.repository == 'isovalent/certgen' }}
     name: Display Digests
     runs-on: ubuntu-24.04
     needs: build-and-push
