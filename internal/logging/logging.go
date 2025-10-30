@@ -12,12 +12,11 @@ import (
 	cfsslLog "github.com/cloudflare/cfssl/log"
 )
 
-// DefaultLoggerLvl is a runtime-configurable log level used by DefaultLogger.
+// Level is a runtime-configurable log level used by Logger.
 var Level = new(slog.LevelVar)
 
-// DefaultLogger is the log/slog logger instance used through the certgen
-// packages.
-var DefaultLogger = slog.New(
+// Logger is the log/slog logger instance used through the certgen packages.
+var Logger = slog.New(
 	slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: Level,
 	}),
@@ -25,41 +24,41 @@ var DefaultLogger = slog.New(
 
 func init() {
 	cfsslLog.SetLogger(&sysLogger{
-		l: DefaultLogger.With(logfields.LogSubsys, "cfssl"),
+		l: Logger.With(logfields.LogSubsys, "cfssl"), //nolint:sloglint
 	})
 }
 
-// sysLogger wraps slog to implement the cfsslLog.SyslogWriter
+// sysLogger wraps slog to implement the cfsslLog.SyslogWriter.
 type sysLogger struct {
 	l *slog.Logger
 }
 
-// Debug implements cfsslLog.SyslogWriter
+// Debug implements cfsslLog.SyslogWriter.
 func (s *sysLogger) Debug(msg string) {
 	s.l.Debug(msg, logfields.LogSyslog, "debug") //nolint:sloglint
 }
 
-// Info implements cfsslLog.SyslogWriter
+// Info implements cfsslLog.SyslogWriter.
 func (s *sysLogger) Info(msg string) {
 	s.l.Info(msg, logfields.LogSyslog, "info") //nolint:sloglint
 }
 
-// Warning implements cfsslLog.SyslogWriter
+// Warning implements cfsslLog.SyslogWriter.
 func (s *sysLogger) Warning(msg string) {
 	s.l.Warn(msg, logfields.LogSyslog, "warning") //nolint:sloglint
 }
 
-// Error implements cfsslLog.SyslogWriter
+// Err implements cfsslLog.SyslogWriter.
 func (s *sysLogger) Err(msg string) {
 	s.l.Error(msg, logfields.LogSyslog, "err") //nolint:sloglint
 }
 
-// Crit implements cfsslLog.SyslogWriter
+// Crit implements cfsslLog.SyslogWriter.
 func (s *sysLogger) Crit(msg string) {
 	s.l.Error(msg, logfields.LogSyslog, "crit") //nolint:sloglint
 }
 
-// Emerg implements cfsslLog.SyslogWriter
+// Emerg implements cfsslLog.SyslogWriter.
 func (s *sysLogger) Emerg(msg string) {
 	s.l.Error(msg, logfields.LogSyslog, "emerg") //nolint:sloglint
 }

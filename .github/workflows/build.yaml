@@ -27,10 +27,14 @@ jobs:
       - name: Run static checks
         uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9
         with:
-          version: v2.1.6
+          version: v2.5.0
           # use our .golangci.yml
           args: --config=.golangci.yml --verbose
           skip-cache: true
+      - name: Run the slowg linter
+        run: |
+          go install github.com/cilium/linters@latest
+          linters -slowg ./...
       - name: govulncheck
         uses: golang/govulncheck-action@b625fbe08f3bccbe446d94fbf87fcc875a4f50ee
         with:
